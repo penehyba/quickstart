@@ -1,0 +1,3 @@
+<jboss-web>
+    <context-root>jsonp</context-root>
+</jboss-web>

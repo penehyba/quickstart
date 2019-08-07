@@ -43,6 +43,30 @@
             JSON String: <br/>
             <h:inputTextarea value="#{jsonController.jsonString}" cols="70" rows="7" />
             <br />
+            <hr />
+            <h:commandButton action="#{jsonController.pointerAdd()}" value="Pointer add" />
+            <h:commandButton action="#{jsonController.pointerReplace()}" value="Pointer replace" />
+            <h:commandButton action="#{jsonController.pointerRemove()}" value="Pointer remove" />
+            <br />
+            <h:commandButton action="#{jsonController.patchAdd()}" value="Patch add" />
+            <h:commandButton action="#{jsonController.patchRemove()}" value="Patch remove" />
+            <h:commandButton action="#{jsonController.patchMove()}" value="Patch move" />
+            <h:commandButton action="#{jsonController.patchCopy()}" value="Patch copy" />
+            <h:commandButton action="#{jsonController.patchReplace()}" value="Patch replace" />
+            <br />
+            <h:commandButton action="#{jsonController.mergePatch(true)}" value="Merge patch minimal" />
+            <h:commandButton action="#{jsonController.mergePatch(false)}" value="Merge patch" />
+            <h:commandButton action="#{jsonController.mergeDiff()}" value="Merge diff" />
+            <br />
+            <h:commandButton action="#{jsonController.jsonCollector()}" value="JSON Collector" />
+            <br />
+            Query: <h:inputText value="#{jsonController.query}" /> (e.g. "/name")<br/>
+            <h:commandButton action="#{jsonController.pointerContainsValue()}" value="Pointer containsValue" />
+            <h:commandButton action="#{jsonController.pointerGetValue()}" value="Pointer getValue" />
+            <br />
+            JSON String: <br/>
+            <h:inputTextarea value="#{jsonController.pointerResult}" cols="70" rows="7" />
+            <br />
         </div>
         <div align="left" style="float: left; padding-left: 5% ; width: 50%">
             <h:commandButton action="#{jsonController.parseJsonStream()}" value="Parse JSON String using Stream"  />
