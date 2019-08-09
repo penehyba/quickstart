@@ -40,15 +40,15 @@ public class JsonController {
     @Inject
     private Person person;
 
-    private String jsonString;
+    private final String defaultJsonString = "{\"name\":\"Rafael Benevides\",\"age\":35,\"enabled\":true,\"phones\":[\"919-555-1324\",\"919-555-0987\"],\"address\":{\"street\":\"4811 Benevides Street\",\"apt\":456,\"city\":\"Raleigh, NC\",\"zip\":\"27123\"}}";
+
+    private String jsonString = defaultJsonString;
 
     private String parsedResult;
 
     private String pointerResult = "empty";
 
     private String query = "/name";
-
-    private final String defaultJsonString = "{\"name\":\"Rafael Benevides\",\"age\":35,\"enabled\":true,\"phones\":[\"919-555-1324\",\"919-555-0987\"],\"address\":{\"street\":\"4811 Benevides Street\",\"apt\":456,\"city\":\"Raleigh, NC\",\"zip\":\"27123\"}}";
 
     private final String mergeJsonString = "{\"name\":\"Rafael\",\"age\":35,\"enabled\":false,\"phones\": null,\"address\":{\"street\":\"4811 Benevides Street\",\"apt\":456,\"city\":\"Raleigh, NC\",\"zip\":\"27123\"}}";
 
@@ -77,120 +77,146 @@ public class JsonController {
     }
 
 
-    public void pointerContainsValue() {
+    public String pointerContainsValue() {
         try (StringReader stringReader = new StringReader(jsonString)) {
             final JsonStructure jsonStructure = Json.createReader(stringReader).read();
             JsonPointer pointer = Json.createPointer(query);
-            pointerResult = String.valueOf(pointer.containsValue(jsonStructure));
+            return setAndReturnPointerResult(String.valueOf(pointer.containsValue(jsonStructure)));
         }
     }
 
-    public void pointerGetValue() {
+    public String pointerGetValue() {
         try (StringReader stringReader = new StringReader(jsonString)) {
             final JsonStructure jsonStructure = Json.createReader(stringReader).read();
             JsonPointer pointer = Json.createPointer(query);
-            pointerResult = String.valueOf(pointer.getValue(jsonStructure));
+            return setAndReturnPointerResult(String.valueOf(pointer.getValue(jsonStructure)));
         }
     }
 
-    public void pointerAdd() {
+    public String pointerAdd() {
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             JsonPointer jsonPointer = Json.createPointer("/children");
             JsonNumber jsonNumber = Json.createValue(3);
             jsonStructure = jsonPointer.add(jsonStructure, jsonNumber);
-            jsonString = String.valueOf(jsonStructure);
+            return setAndReturnJsonString(String.valueOf(jsonStructure));
         }
     }
 
-    public void pointerReplace() {
+    public String pointerReplace() {
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
-            JsonPointer jsonPointer = Json.createPointer("/children");
-            JsonNumber jsonNumberNewValue = Json.createValue(5);
+            JsonPointer jsonPointer = Json.createPointer("/age");
+            JsonNumber jsonNumberNewValue = Json.createValue(46);
             try {
                 jsonStructure = jsonPointer.replace(jsonStructure, jsonNumberNewValue);
-                jsonString = String.valueOf(jsonStructure);
+                return setAndReturnJsonString(String.valueOf(jsonStructure));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void pointerRemove() {
-        JsonPointer jsonPointer = Json.createPointer("/children");
+    public String pointerReplaceFail() {
+        try (StringReader stringReader = new StringReader(jsonString)) {
+            JsonStructure jsonStructure = Json.createReader(stringReader).read();
+            JsonPointer jsonPointer = Json.createPointer("/nonsense");
+            JsonNumber jsonNumberNewValue = Json.createValue(42);
+            try {
+                jsonStructure = jsonPointer.replace(jsonStructure, jsonNumberNewValue);
+                return setAndReturnJsonString(String.valueOf(jsonStructure));
+            } catch (Exception e) {
+                return setAndReturnJsonString(e.getMessage());
+            }
+        }
+    }
+
+    public String pointerRemove() {
+        JsonPointer jsonPointer = Json.createPointer("/age");
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             try {
                 jsonStructure = jsonPointer.remove(jsonStructure);
-                jsonString = String.valueOf(jsonStructure);
+                return setAndReturnJsonString(String.valueOf(jsonStructure));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void patchAdd() {
+    public String patchAdd() {
         JsonPatch jsonPatch = Json.createPatchBuilder().add("/friends", 12).build();
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             try {
-                jsonString = String.valueOf(jsonPatch.apply(jsonStructure));
+                return setAndReturnJsonString(String.valueOf(jsonPatch.apply(jsonStructure)));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void patchRemove() {
-        JsonPatch jsonPatch = Json.createPatchBuilder().remove("/friends").build();
+    public String patchRemove() {
+        JsonPatch jsonPatch = Json.createPatchBuilder().remove("/age").build();
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             try {
-                jsonString = String.valueOf(jsonPatch.apply(jsonStructure));
+                return setAndReturnJsonString(String.valueOf(jsonPatch.apply(jsonStructure)));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void patchMove() {
-        JsonPatch jsonPatch = Json.createPatchBuilder().move("/bestfriends", "/friends").build();
+    public String patchMove() {
+        JsonPatch jsonPatch = Json.createPatchBuilder().move("/name", "/age").build();
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             try {
-                jsonString = String.valueOf(jsonPatch.apply(jsonStructure));
+                return setAndReturnJsonString(String.valueOf(jsonPatch.apply(jsonStructure)));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void patchCopy() {
-        JsonPatch jsonPatch = Json.createPatchBuilder().copy("/friends", "/age").build();
+    public String patchCopy() {
+        JsonPatch jsonPatch = Json.createPatchBuilder().copy("/name", "/age").build();
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             try {
-                jsonString = String.valueOf(jsonPatch.apply(jsonStructure));
+                return setAndReturnJsonString(String.valueOf(jsonPatch.apply(jsonStructure)));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void patchReplace() {
-        JsonPatch jsonPatch = Json.createPatchBuilder().replace("/friends", 14).build();
+    public String patchCopyFail() {
+        JsonPatch jsonPatch = Json.createPatchBuilder().copy("/name", "/nonsense").build();
         try (StringReader stringReader = new StringReader(jsonString)) {
             JsonStructure jsonStructure = Json.createReader(stringReader).read();
             try {
-                jsonString = String.valueOf(jsonPatch.apply(jsonStructure));
+                return setAndReturnJsonString(String.valueOf(jsonPatch.apply(jsonStructure)));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void mergePatch(boolean minimal) {
+    public String patchReplace() {
+        JsonPatch jsonPatch = Json.createPatchBuilder().replace("/age", 56).build();
+        try (StringReader stringReader = new StringReader(jsonString)) {
+            JsonStructure jsonStructure = Json.createReader(stringReader).read();
+            try {
+                return setAndReturnJsonString(String.valueOf(jsonPatch.apply(jsonStructure)));
+            } catch (Exception e) {
+                return setAndReturnJsonString(e.getMessage());
+            }
+        }
+    }
+
+    public String mergePatch(boolean minimal) {
         String mergeString = minimal ? this.mergeMinimalJsonString : this.mergeJsonString;
         try (StringReader readerDefault = new StringReader(defaultJsonString);
              StringReader readerMerge = new StringReader(mergeString);
@@ -198,35 +224,34 @@ public class JsonController {
             JsonStructure structureDefault = Json.createReader(readerDefault).read();
             JsonStructure structureMerge = Json.createReader(readerMerge).read();
             try {
-                jsonString = String.valueOf(Json.createMergePatch(structureMerge).apply(structureDefault));
+                return setAndReturnJsonString(String.valueOf(Json.createMergePatch(structureMerge).apply(structureDefault)));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void mergeDiff() {
+    public String mergeDiff() {
         try (StringReader readerDefault = new StringReader(defaultJsonString);
              StringReader readerResult = new StringReader(expectedMergeResult);
         ) {
             JsonStructure structureDefault = Json.createReader(readerDefault).read();
             JsonStructure structureResult = Json.createReader(readerResult).read();
             try {
-                jsonString = String.valueOf(Json.createMergeDiff(structureDefault, structureResult).toJsonValue());
-
+                return setAndReturnJsonString(String.valueOf(Json.createMergeDiff(structureDefault, structureResult).toJsonValue()));
             } catch (Exception e) {
-                jsonString = e.getMessage();
+                return setAndReturnJsonString(e.getMessage());
             }
         }
     }
 
-    public void jsonCollector() {
+    public String jsonCollector() {
         JsonArray array = IntStream.rangeClosed(1, 5)
                 .mapToObj(i -> Json.createObjectBuilder()
                         .add("key" + i, "value" + i)
                         .build())
                 .collect(JsonCollectors.toJsonArray());
-        jsonString = String.valueOf(array);
+        return setAndReturnJsonString(String.valueOf(array));
     }
 
     public void parseJsonStream() {
@@ -262,6 +287,11 @@ public class JsonController {
         this.jsonString = jsonString;
     }
 
+    public String setAndReturnJsonString(String jsonString) {
+        setJsonString(jsonString);
+        return this.jsonString;
+    }
+
     public String getJsonString() {
         return jsonString;
     }
@@ -276,6 +306,11 @@ public class JsonController {
 
     public void setPointerResult(String pointerResult) {
         this.pointerResult = pointerResult;
+    }
+
+    public String setAndReturnPointerResult(String pointerResult) {
+        setPointerResult(pointerResult);
+        return this.pointerResult;
     }
 
     public String getQuery() {
